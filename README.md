@@ -1,4 +1,4 @@
-# Sales-data-SAS-
+# Salesdata(SAS)
 The dataset was extracted from Kaggle .first I identified and handled missing values,removed duplicates, standardized  text values like gender.. etc.convert date formats,  rename column names
 
 /* Import the data*/
