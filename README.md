@@ -1,49 +1,32 @@
 # Sales-data-SAS-
 The dataset was extracted from Kaggle .first I identified and handled missing values,removed duplicates, standardized  text values like gender.. etc.convert date formats,  rename column names
-. Unzip and Import Data
 
-If the file is zipped, first extract it manually (outside SAS), then import the .csv into SAS:
-
-/* Import CSV into SAS */
+/* Import the data*/
 proc import datafile="/mnt/data/sales_data.csv"
-    out=salesdata
-    dbms=csv
-    replace;
-    guessingrows=max;
+out=salesdata dbms=csv  replace;
+ guessingrows=max;
 run;
 
+2. Identify & Handle Missing Values:
 
----
-
-2. Identify & Handle Missing Values
-
-You can check missing values first:
+/*checking  the missing values first*/
 
 /* Count missing values per column */
 proc means data=salesdata n nmiss;
 run;
-
 /* Optionally drop rows with missing critical columns */
 data salesdata_clean;
     set salesdata;
     if cmiss(of _all_) then delete;   /* deletes rows with any missing */
 run;
 
-(You can adjust which columns are critical by specifying them instead of _all_).
+3. Remove Duplicate Rows:
 
-
----
-
-3. Remove Duplicate Rows
-
-proc sort data=salesdata_clean noduprecs;
+proc sort data=salesdata_clean nodupkey;
     by _all_;
 run;
 
-
----
-
-4. Standardize Text Values
+4. Standardize Text Values:
 
 Example: standardize gender and country names.
 
@@ -54,13 +37,10 @@ data salesdata_clean;
     else if upcase(gender) in ("F", "FEMALE") then gender="Female";
 
     /* Country standardization */
-    country = propcase(strip(country));   /* e.g., "india" → "India" */
+    country = propcase(strip(country)); 
 run;
 
-
----
-
-5. Convert Date Formats
+5. Convert Date Formats:
 
 Assume column = order_date.
 
@@ -73,28 +53,17 @@ data salesdata_clean;
     rename order_date_new=order_date;
 run;
 
-
----
-
-6. Rename Column Headers
-
-If your dataset has messy names, use:
-
+6. Rename Column Headers:
+/*using datasets procedure*/
 proc datasets lib=work nolist;
-    modify salesdata_clean;
+modify salesdata_clean;
     rename
         "Customer Name"n = customer_name
         "Order Date"n   = order_date
         "Sales Amount"n = sales_amount;
 quit;
 
-
----
-
-7. Check & Fix Data Types
-
-Example: age as integer, sales_amount as numeric.
-
+8. Check & Fix Data Types:
 data salesdata_clean;
     set salesdata_clean;
     /* Convert age */
@@ -103,6 +72,7 @@ data salesdata_clean;
     rename age_num=age;
 
     /* Ensure sales_amount is numeric */
+   /*using bestw.technique*/
     sales_amt_num = input(sales_amount, best12.);
     drop sales_amount;
     rename sales_amt_num=sales_amount;
